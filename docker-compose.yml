@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./DroPrintBackend
+      dockerfile: Dockerfile
+    image: droprint-backend
+    container_name: droprint-backend
+    restart: unless-stopped
+    working_dir: /var/www/html
+    volumes:
+      - ./DroPrintBackend:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - droprint-network
+  frontend:
+    build:
+      context: ./DroPrintFront
+      dockerfile: Dockerfile
+    image: droprint-frontend
+    container_name: droprint-frontend
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - ./DroPrintFront:/app
+      - /app/node_modules
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - droprint-network
+
+  db:
+    image: mysql:8.0
+    container_name: droprint-db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: droprint
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD: root
+    volumes:
+      - dbdata:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - droprint-network
+
+networks:
+  droprint-network:
+    driver: bridge
+
+volumes:
+  dbdata:

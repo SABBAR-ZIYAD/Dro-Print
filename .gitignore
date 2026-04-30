@@ -1,0 +1,40 @@
+# Legacy folder
+Dro-Print/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Production
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDEs
+.idea/
+.vscode/
+.DS_Store
+
+# PHP / Laravel specific
+DroPrintBackend/storage/*.key
+DroPrintBackend/storage/framework/cache/data/*
+DroPrintBackend/storage/framework/sessions/*
+DroPrintBackend/storage/framework/testing/*
+DroPrintBackend/storage/framework/views/*
+DroPrintBackend/.phpunit.result.cache
+DroPrintBackend/public/storage
+DroPrintBackend/public/hot
+DroPrintBackend/storage/logs/*.log
+DroPrintBackend/bootstrap/cache/*

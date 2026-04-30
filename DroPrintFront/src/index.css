@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Custom theme variables matching the original design */
+@theme {
+  --color-brand-purple: #663366;
+  --color-brand-purple-dark: #5b1b43;
+  --color-brand-yellow: #fdc702;
+  --color-brand-yellow-hover: #FFCC00;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #ffffff;
+}
+
+/* Original custom classes from welcome.blade.php */
+.icon-yellow {
+  filter: brightness(0) saturate(100%) invert(73%) sepia(89%) saturate(1516%) hue-rotate(2deg) brightness(103%) contrast(105%);
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+  font-size: 20px !important;
+  color: #4B5563 !important;
+}
