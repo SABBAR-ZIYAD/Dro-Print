@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className="bg-[var(--color-brand-purple)] text-white pt-12 pb-8">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8 text-center md:text-left">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-8 mb-8 text-center md:text-left">
           
           {/* About Section */}
           <div className="md:col-span-1">
@@ -24,11 +24,16 @@ const Footer = () => {
               <li><a href="tel:+212664089442" className="hover:text-white transition flex items-center gap-2">📞 +212 664089442</a></li>
               <li><a href="mailto:droprint10@gmail.com" className="hover:text-white transition flex items-center gap-2">✉️ droprint10@gmail.com</a></li>
               <li>
-                <a href="https://maps.app.goo.gl/YourGoogleMapsLinkHere" target="_blank" rel="noreferrer" className="hover:text-white transition flex items-start gap-2 text-left">
-                  <span>📍</span> Quartier industriel Al Massar, Marrakech
+                <a href="https://maps.app.goo.gl/jS119dqipzL3Yc576" target="_blank" rel="noreferrer" className="hover:text-white transition flex items-start gap-2 text-left">
+                  <span>📍</span> N° 399 Zone Industrielle Massar 1 Magasin, 2, Route de Safi, Marrakech 40000
                 </a>
               </li>
             </ul>
+          </div>
+
+          <div className="md:col-span-1">
+            <h3 className="text-xl font-bold mb-4">Horaires</h3>
+            <p className="text-sm text-gray-300">Lundi - Vendredi : 9H - 13H | 14H - 19H<br />Samedi : 9H - 13H</p>
           </div>
 
           {/* Quick Links */}

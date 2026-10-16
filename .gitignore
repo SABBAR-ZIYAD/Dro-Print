@@ -1,5 +1,6 @@
 # Legacy folder
 Dro-Print/
+.comparison/
 
 # Dependencies
 node_modules/

@@ -1,58 +1,56 @@
-version: '3.8'
-
 services:
-  backend:
-    build:
-      context: ./DroPrintBackend
-      dockerfile: Dockerfile
-    image: droprint-backend
-    container_name: droprint-backend
-    restart: unless-stopped
-    working_dir: /var/www/html
-    volumes:
-      - ./DroPrintBackend:/var/www/html
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    networks:
-      - droprint-network
-  frontend:
-    build:
-      context: ./DroPrintFront
-      dockerfile: Dockerfile
-    image: droprint-frontend
-    container_name: droprint-frontend
-    restart: unless-stopped
-    working_dir: /app
-    volumes:
-      - ./DroPrintFront:/app
-      - /app/node_modules
-    ports:
-      - "5173:5173"
-    depends_on:
-      - backend
-    networks:
-      - droprint-network
-
   db:
     image: mysql:8.0
-    container_name: droprint-db
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: droprint
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_PASSWORD: root
+      MYSQL_USER: droprint
+      MYSQL_PASSWORD: ${DB_PASSWORD:-droprint_local}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root_local}
     volumes:
-      - dbdata:/var/lib/mysql
+      - catalog_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysql --protocol=tcp -h 127.0.0.1 -u$$MYSQL_USER -p$$MYSQL_PASSWORD $$MYSQL_DATABASE -e 'SELECT 1' >/dev/null 2>&1"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  backend:
+    build: ./DroPrintBackend
+    restart: unless-stopped
+    environment:
+      APP_NAME: DroPrint
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      APP_KEY: ${APP_KEY:?Set APP_KEY in the root .env file}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: droprint
+      DB_USERNAME: droprint
+      DB_PASSWORD: ${DB_PASSWORD:-droprint_local}
+      SESSION_DRIVER: file
+      CACHE_STORE: file
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: ${MAIL_MAILER:-log}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-no-reply@droprint.local}
+      MAIL_FROM_NAME: DroPrint
+      QUOTE_RECIPIENT: ${QUOTE_RECIPIENT:-contact@droprint.ma}
+      SEED_DEMO: ${SEED_DEMO:-true}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/var/www/html/storage/app/public
     ports:
-      - "3307:3306"
-    networks:
-      - droprint-network
-
-networks:
-  droprint-network:
-    driver: bridge
-
+      - "127.0.0.1:8000:8000"
+  frontend:
+    build: ./DroPrintFront
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "127.0.0.1:5173:80"
 volumes:
-  dbdata:
+  catalog_data:
+  uploads:

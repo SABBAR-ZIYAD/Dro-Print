@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useSearchParams } from 'react-router-dom';
+import { api } from '../api';
 
 const Devis = () => {
   const [categories, setCategories] = useState([]);
@@ -7,10 +8,12 @@ const Devis = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
+  const selectedProduct = searchParams.get('product') || '';
 
   useEffect(() => {
     // Fetch categories for the select dropdown
-    axios.get('http://localhost:8000/api/categories')
+    api.get('/categories')
       .then(res => {
         if (res.data.success && res.data.categories) {
           setCategories(res.data.categories);
@@ -32,11 +35,7 @@ const Devis = () => {
     const formData = new FormData(e.target);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/devis-request', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
+      const response = await api.post('/devis-request', formData);
       
       if (response.data.success) {
         setSuccessMessage(response.data.message || 'Votre demande de devis a été envoyée avec succès.');
@@ -47,7 +46,8 @@ const Devis = () => {
         setTimeout(() => setSuccessMessage(''), 4000);
       }
     } catch (error) {
-      setErrorMessage('Une erreur s\'est produite. Veuillez réessayer.');
+      const errors = error.response?.data?.errors;
+      setErrorMessage(errors ? Object.values(errors).flat().join(' ') : 'Une erreur s\'est produite. Veuillez réessayer.');
       console.error(error);
     } finally {
       setLoading(false);
@@ -86,23 +86,21 @@ const Devis = () => {
             <div>
               <label htmlFor="name" className="block font-semibold mb-1">Nom et prénom *</label>
               <input type="text" name="name" id="name" required
-                pattern="[A-Z][a-zA-Z]+ [A-Z][a-zA-Z]+"
-                title="Format: Nom Prénom (ex: Jean Dupont)"
+                autoComplete="name"
                 className="w-full border border-gray-300 bg-white rounded-lg p-2 focus:ring-2 focus:ring-[var(--color-brand-yellow)] focus:border-[var(--color-brand-yellow)] outline-none text-gray-700 placeholder-gray-500 transition-all" 
               />
             </div>
             <div>
               <label htmlFor="email" className="block font-semibold mb-1">E-mail *</label>
               <input type="email" name="email" id="email" required 
+                autoComplete="email"
                 className="w-full border border-gray-300 bg-white rounded-lg p-2 focus:ring-2 focus:ring-[var(--color-brand-yellow)] focus:border-[var(--color-brand-yellow)] outline-none text-gray-700 placeholder-gray-500 transition-all" 
               />
             </div>
             <div>
               <label htmlFor="phone" className="block font-semibold mb-1">Téléphone</label>
               <input type="tel" name="phone" id="phone"
-                pattern="[0-9]{10}"
-                maxLength="10"
-                title="Numéro de téléphone à 10 chiffres"
+                autoComplete="tel"
                 className="w-full border border-gray-300 bg-white rounded-lg p-2 focus:ring-2 focus:ring-[var(--color-brand-yellow)] focus:border-[var(--color-brand-yellow)] outline-none text-gray-700 placeholder-gray-500 transition-all" 
               />
             </div>
@@ -121,7 +119,9 @@ const Devis = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label htmlFor="product_type" className="block font-semibold mb-1">Type de produit *</label>
-              <select 
+              <select
+                key={selectedProduct}
+                defaultValue={selectedProduct}
                 name="product_type" 
                 id="product_type" 
                 required
@@ -145,7 +145,7 @@ const Devis = () => {
               {isCustomProduct && (
                 <div id="custom_product_container" className="mt-2 animate-fadeIn">
                   <label htmlFor="custom_product" className="block font-semibold mb-1">Produit personnalisé</label>
-                  <input type="text" name="custom_product" id="custom_product"
+                  <input type="text" name="custom_product" id="custom_product" required
                     placeholder="Décrivez votre produit..."
                     className="w-full border border-gray-300 bg-white rounded-lg p-2 focus:ring-2 focus:ring-[var(--color-brand-yellow)] focus:border-[var(--color-brand-yellow)] outline-none text-gray-700 transition-all" 
                   />
@@ -189,7 +189,7 @@ const Devis = () => {
         {/* File Upload */}
         <div>
           <label htmlFor="file" className="block font-semibold mb-1">Téléchargez votre fichier</label>
-          <input type="file" name="file" id="file" 
+          <input type="file" name="file" id="file" accept=".pdf,.png,.jpg,.jpeg,.ai,.eps,.svg,.zip"
             className="border border-gray-300 bg-white rounded-lg p-2 w-full focus:ring-2 focus:ring-[var(--color-brand-yellow)] focus:border-[var(--color-brand-yellow)] outline-none text-gray-700 transition-all" 
           />
         </div>

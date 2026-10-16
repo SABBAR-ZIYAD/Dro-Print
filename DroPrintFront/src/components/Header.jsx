@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { api } from '../api';
 
 const Header = () => {
   const [categories, setCategories] = useState([]);
@@ -15,7 +15,7 @@ const Header = () => {
   useEffect(() => {
     // We should fetch categories here from API, but for now we'll leave it empty
     // since the original Blade injected them globally. We'll fetch them from Laravel API.
-    axios.get('http://localhost:8000/api/categories')
+    api.get('/categories')
       .then(res => {
         if (res.data.success && res.data.categories) {
           setCategories(res.data.categories);
@@ -123,6 +123,8 @@ const Header = () => {
             <button
               onMouseEnter={() => setIsCategoriesOpen(true)}
               onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+              aria-label="Parcourir les catégories"
+              aria-expanded={isCategoriesOpen}
               className="px-4 py-2 font-semibold text-[var(--color-brand-purple)] hover:text-white hover:bg-[var(--color-brand-yellow-hover)] transition rounded-md flex items-center"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -160,6 +162,13 @@ const Header = () => {
 
         </div>
       </div>
+      <form onSubmit={handleSearch} className="mx-auto max-w-lg px-6 pb-3 md:hidden">
+        <label htmlFor="mobile-search" className="sr-only">Rechercher un produit ou une catégorie</label>
+        <div className="flex overflow-hidden rounded-full border border-gray-300 bg-white">
+          <input id="mobile-search" type="search" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} minLength="2" required placeholder="Rechercher un produit" className="min-w-0 flex-1 px-4 py-2 outline-none" />
+          <button type="submit" className="bg-[var(--color-brand-purple)] px-4 text-white">Chercher</button>
+        </div>
+      </form>
     </header>
   );
 };

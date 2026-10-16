@@ -1,33 +1,28 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { api, imageUrl } from '../api';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import Testimonials from '../components/Testimonials';
+import ProductCard from '../components/ProductCard';
 
 const Home = () => {
   const [announcements, setAnnouncements] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  // Fallback featured products if API returns empty
-  const fallbackProducts = [
-    { id: 1, name: "Roll-up Premium", slug: "roll-up", image_path: "https://placehold.co/600x400/5b21b6/ffffff?text=Roll-up" },
-    { id: 2, name: "Cartes de Visite", slug: "cartes-de-visite", image_path: "https://placehold.co/600x400/5b21b6/ffffff?text=Cartes+de+Visite" },
-    { id: 3, name: "Flyers A5", slug: "flyers", image_path: "https://placehold.co/600x400/5b21b6/ffffff?text=Flyers" },
-    { id: 4, name: "Affiches Grand Format", slug: "affiches", image_path: "https://placehold.co/600x400/5b21b6/ffffff?text=Affiches" },
-  ];
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    axios.get('http://localhost:8000/api/home')
+    api.get('/home')
       .then(res => {
         if (res.data.success) {
           setAnnouncements(res.data.announcements);
           setFeaturedProducts(res.data.featuredProducts);
         }
       })
-      .catch(err => console.error("Error fetching home data:", err))
+      .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
@@ -38,25 +33,25 @@ const Home = () => {
         <div className="max-w-7xl mx-auto px-5">
           {loading ? (
             <div className="w-full h-76 bg-gray-200 animate-pulse rounded-lg"></div>
-          ) : (
+          ) : announcements.length ? (
             <Swiper
               modules={[Navigation, Autoplay]}
               navigation
               autoplay={{ delay: 5000, disableOnInteraction: false }}
-              loop={true}
+              loop={announcements.length > 1}
               className="mySwiper rounded-lg shadow"
             >
               {announcements.map(ann => (
                 <SwiperSlide key={ann.id}>
                   <img 
-                    src={`http://localhost:8000/storage/${ann.image_path}`} 
+                    src={imageUrl(ann.image_path)}
                     alt={ann.title} 
                     className="w-full h-76 object-cover rounded-lg shadow" 
                   />
                 </SwiperSlide>
               ))}
             </Swiper>
-          )}
+          ) : null}
         </div>
       </section>
 
@@ -73,53 +68,11 @@ const Home = () => {
                 <div key={i} className="h-64 bg-gray-200 animate-pulse rounded-2xl"></div>
               ))}
             </div>
-          ) : (
+          ) : error ? <p role="alert" className="text-center">Impossible de charger les produits. Veuillez réessayer plus tard.</p> : featuredProducts.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {featuredProducts && featuredProducts.length > 0 ? (
-                featuredProducts.map(product => (
-                  <Link 
-                    key={product.id} 
-                    to={`/products/${product.slug}`} 
-                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-4 border border-gray-100 hover:border-[var(--color-brand-purple-dark)] block"
-                  >
-                    {product.image_path && (
-                      <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-                        <img 
-                          src={`http://localhost:8000/storage/${product.image_path}`} 
-                          alt={product.name} 
-                          className="max-h-full max-w-full object-contain"
-                        />
-                      </div>
-                    )}
-                    <h3 className="text-lg font-semibold text-[var(--color-brand-purple-dark)] mt-4">
-                      {product.name}
-                    </h3>
-                  </Link>
-                ))
-              ) : (
-                fallbackProducts.map(product => (
-                  <Link 
-                    key={product.id} 
-                    to={`/products/${product.slug}`} 
-                    className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-4 border border-gray-100 hover:border-[var(--color-brand-purple-dark)] block"
-                  >
-                    {product.image_path && (
-                      <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden flex items-center justify-center">
-                        <img 
-                          src={product.image_path.startsWith('http') ? product.image_path : `/images/${product.image_path}`} 
-                          alt={product.name} 
-                          className="max-h-full max-w-full object-contain"
-                        />
-                      </div>
-                    )}
-                    <h3 className="text-lg font-semibold text-[var(--color-brand-purple-dark)] mt-4">
-                      {product.name}
-                    </h3>
-                  </Link>
-                ))
-              )}
+              {featuredProducts.map(product => <ProductCard key={product.id} product={product} />)}
             </div>
-          )}
+          ) : <p className="text-center text-gray-600">Les produits seront bientôt disponibles.</p>}
         </div>
       </section>
 

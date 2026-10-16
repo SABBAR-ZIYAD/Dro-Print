@@ -3,6 +3,9 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import About from './pages/About';
 import Devis from './pages/Devis';
+import Search from './pages/Search';
+import Category from './pages/Category';
+import Product from './pages/Product';
 
 function App() {
   return (
@@ -13,10 +16,10 @@ function App() {
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/devis" element={<Devis />} />
-          {/* Temporary stubs for the other routes */}
-          <Route path="/search" element={<div className="p-10 text-center">Search Page Placeholder</div>} />
-          <Route path="/categories/:slug" element={<div className="p-10 text-center">Category Placeholder</div>} />
-          <Route path="/products/:slug" element={<div className="p-10 text-center">Product Placeholder</div>} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/categories/:slug" element={<Category />} />
+          <Route path="/products/:slug" element={<Product />} />
+          <Route path="*" element={<main className="p-10 text-center"><h1 className="text-3xl font-bold">Page introuvable</h1></main>} />
         </Routes>
       </Layout>
     </Router>

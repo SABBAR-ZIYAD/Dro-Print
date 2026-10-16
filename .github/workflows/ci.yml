@@ -1,0 +1,68 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: DroPrintFront/package-lock.json
+      - run: npm ci
+        working-directory: DroPrintFront
+      - run: npm run lint
+        working-directory: DroPrintFront
+      - run: npm run build
+        working-directory: DroPrintFront
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, intl, pdo_sqlite, sqlite3, fileinfo, zip
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress
+        working-directory: DroPrintBackend
+      - run: cp .env.example .env && php artisan key:generate && php artisan test
+        working-directory: DroPrintBackend
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    needs: [frontend, backend]
+    steps:
+      - uses: actions/checkout@v7
+      - name: Start stack
+        run: |
+          printf 'APP_KEY=base64:%s\n' "$(openssl rand -base64 32)" > .env
+          docker compose up --build -d
+      - name: Smoke test customer journey
+        run: |
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:5173/api/home > /tmp/home.json; then break; fi
+            sleep 5
+          done
+          curl -fsS http://localhost:5173/api/categories > /tmp/categories.json
+          curl -fsS 'http://localhost:5173/api/search?q=Flyers' > /tmp/search.json
+          curl -fsS http://localhost:5173/api/products/flyers-a4 > /tmp/product.json
+          curl -fsS http://localhost:5173/products/flyers-a4 | grep -q '<div id="root">'
+          curl -fsS -X POST http://localhost:5173/api/devis-request -H 'Content-Type: application/json' -d '{"name":"CI Smoke","email":"smoke@example.com","product_type":"Flyers A4","quantity":100}' > /tmp/quote.json
+          curl -fsS http://localhost:8000/admin/login | grep -q 'Filament'
+          php -r '$home=json_decode(file_get_contents("/tmp/home.json"), true); $search=json_decode(file_get_contents("/tmp/search.json"), true); $product=json_decode(file_get_contents("/tmp/product.json"), true); $quote=json_decode(file_get_contents("/tmp/quote.json"), true); if (empty($home["featuredProducts"]) || empty($search["products"]) || empty($product["product"]) || empty($quote["success"])) exit(1);'
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs --tail=100
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v
