@@ -12,6 +12,7 @@ vendor/
 # Production
 dist/
 build/
+docs/linkedin-screenshots/
 
 # Logs
 *.log

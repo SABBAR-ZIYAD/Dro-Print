@@ -44,11 +44,11 @@ const Header = () => {
 
   return (
     <header className="bg-gray-50 shadow-md sticky top-0 z-50">
-      <div className="container mx-auto px-6 py-3 flex items-center justify-between">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between sm:px-6">
         
         {/* Logo */}
         <Link to="/">
-          <img src="/images/logoDRO_PRINT.png" alt="DroPrint Logo" className="h-11" />
+          <img src="/images/logoDRO_PRINT.png" alt="DroPrint Logo" className="h-9 sm:h-11" />
         </Link>
 
         {/* Search Bar */}
@@ -76,7 +76,7 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           
           {/* Contact Dropdown */}
-          <div ref={contactRef} className="relative group">
+          <div ref={contactRef} className="relative hidden sm:block">
             <button
               onMouseEnter={() => setIsContactOpen(true)}
               onClick={() => setIsContactOpen(!isContactOpen)}
@@ -162,7 +162,7 @@ const Header = () => {
 
         </div>
       </div>
-      <form onSubmit={handleSearch} className="mx-auto max-w-lg px-6 pb-3 md:hidden">
+      <form onSubmit={handleSearch} className="mx-auto max-w-lg px-4 pb-3 sm:px-6 md:hidden">
         <label htmlFor="mobile-search" className="sr-only">Rechercher un produit ou une catégorie</label>
         <div className="flex overflow-hidden rounded-full border border-gray-300 bg-white">
           <input id="mobile-search" type="search" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} minLength="2" required placeholder="Rechercher un produit" className="min-w-0 flex-1 px-4 py-2 outline-none" />

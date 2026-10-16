@@ -11,6 +11,16 @@
 body {
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: #ffffff;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background: #fdc702;
+  color: #35152f;
 }
 
 /* Original custom classes from welcome.blade.php */
