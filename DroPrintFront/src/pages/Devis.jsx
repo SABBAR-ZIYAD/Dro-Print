@@ -10,6 +10,7 @@ const Devis = () => {
   const [loading, setLoading] = useState(false);
   const [searchParams] = useSearchParams();
   const selectedProduct = searchParams.get('product') || '';
+  const [productType, setProductType] = useState(selectedProduct);
 
   useEffect(() => {
     // Fetch categories for the select dropdown
@@ -23,6 +24,7 @@ const Devis = () => {
   }, []);
 
   const handleProductTypeChange = (e) => {
+    setProductType(e.target.value);
     setIsCustomProduct(e.target.value === 'custom');
   };
 
@@ -40,6 +42,7 @@ const Devis = () => {
       if (response.data.success) {
         setSuccessMessage(response.data.message || 'Votre demande de devis a été envoyée avec succès.');
         e.target.reset();
+        setProductType('');
         setIsCustomProduct(false);
         
         // Hide success message after 4 seconds
@@ -120,8 +123,7 @@ const Devis = () => {
             <div>
               <label htmlFor="product_type" className="block font-semibold mb-1">Type de produit *</label>
               <select
-                key={selectedProduct}
-                defaultValue={selectedProduct}
+                value={productType}
                 name="product_type" 
                 id="product_type" 
                 required
